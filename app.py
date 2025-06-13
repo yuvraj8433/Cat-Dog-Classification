@@ -3,6 +3,16 @@ import cv2
 import numpy as np
 import joblib
 import time
+import os
+import gdown
+
+MODEL_PATH = "cat_dog_mobilenet.h5"
+MODEL_URL = "https://drive.google.com/uc?id=YOUR_FILE_ID"  # shareable download link
+
+if not os.path.exists(MODEL_PATH):
+    with st.spinner("📥 Downloading model..."):
+        gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
+
 
 # Constants
 IMG_SIZE = 64
