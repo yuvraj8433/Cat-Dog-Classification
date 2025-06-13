@@ -6,55 +6,49 @@ import time
 import os
 import gdown
 
-MODEL_PATH = "cat_dog_mobilenet.h5"
-MODEL_URL = "https://drive.google.com/uc?id=YOUR_FILE_ID"  # shareable download link
+# --- Constants ---
+MODEL_PATH = "svm_model.pkl"
+MODEL_URL = "https://drive.google.com/uc?id=1fdrlivNBQeZu1WakowTn6F5PA3LjUMN9"  # Direct download link
+IMG_SIZE = 64
+CLASS_NAMES = ['🐱 Cat', '🐶 Dog']
 
+# --- Model Download ---
 if not os.path.exists(MODEL_PATH):
     with st.spinner("📥 Downloading model..."):
         gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
 
+# --- Load Model ---
+model = joblib.load(MODEL_PATH)
 
-# Constants
-IMG_SIZE = 64
-CLASS_NAMES = ['🐱 Cat', '🐶 Dog']
-
-# Load model
-model = joblib.load("svm_model.pkl")
-
-# Page config
+# --- Page Config ---
 st.set_page_config(page_title="Cat vs Dog Classifier", page_icon="🐾", layout="centered")
 
-# UI Title
+# --- UI Header ---
 st.title("🐾 Cat vs Dog Image Classifier")
 st.write("Upload an image of a **cat or dog**, and this app will tell you what it sees using a trained SVM model.")
 
-# File uploader
+# --- File Upload ---
 uploaded_file = st.file_uploader("📤 Upload a JPEG/PNG image", type=["jpg", "jpeg", "png"])
 
-# On image upload
 if uploaded_file is not None:
-    # Read image bytes
     file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
     image = cv2.imdecode(file_bytes, 1)
 
-    # Display original image
     st.image(image, caption="📷 Uploaded Image", channels="BGR", use_column_width=True)
 
-    # Preprocess
+    # --- Preprocessing ---
     resized = cv2.resize(image, (IMG_SIZE, IMG_SIZE))
     gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
     flat = gray.flatten().reshape(1, -1)
 
-    # Predict with timer
+    # --- Prediction ---
     start_time = time.time()
     pred = model.predict(flat)[0]
-    prob = model.decision_function(flat)[0]  # Confidence distance from hyperplane
+    prob = model.decision_function(flat)[0]
     elapsed = time.time() - start_time
-
-    # Normalize confidence to a 0-100 scale using sigmoid approximation
     confidence = 1 / (1 + np.exp(-abs(prob))) * 100
 
-    # Output
+    # --- Output ---
     st.markdown("---")
     st.subheader("🔍 Prediction Result")
     st.markdown(f"**Prediction:** {CLASS_NAMES[pred]}")
