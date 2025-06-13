@@ -1,0 +1,5 @@
+training_set
+svm_model.pkl
+__pycache__/
+*.pyc
+.venv/
