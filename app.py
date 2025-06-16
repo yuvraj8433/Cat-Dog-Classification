@@ -1,52 +1,85 @@
 import streamlit as st
-import cv2
 import numpy as np
-import joblib
-import time
+import tensorflow as tf
+from tensorflow.keras.models import load_model
+from PIL import Image
+import os
 
-# Constants
-IMG_SIZE = 64
+# --- Page Config ---
+st.set_page_config(page_title="Cat vs Dog Classifier", layout="wide", page_icon="🤖")
+
+# --- Constants ---
+MODEL_PATH = "cat_dog_cnn_model.keras"
+IMG_SIZE = 128
 CLASS_NAMES = ['🐱 Cat', '🐶 Dog']
 
-# Load model
-model = joblib.load("svm_model.pkl")
+# --- Custom CSS for high-tech style ---
+st.markdown("""
+    <style>
+        .reportview-container {
+            background-color: #0f0f0f;
+            color: #f0f0f0;
+        }
+        .block-container {
+            padding: 2rem 2rem 2rem 2rem;
+        }
+        .stButton>button {
+            background-color: #00ffcc;
+            color: black;
+            font-weight: bold;
+            border-radius: 10px;
+        }
+        .stFileUploader {
+            border: 2px dashed #00ffcc;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
-# Page config
-st.set_page_config(page_title="Cat vs Dog Classifier", page_icon="🐾", layout="centered")
+# --- Load Model ---
+@st.cache_resource
+def load_cnn_model():
+    if not os.path.exists(MODEL_PATH):
+        st.error(f"⚠️ Model file '{MODEL_PATH}' not found.")
+        st.stop()
+    return load_model(MODEL_PATH)
 
-# UI Title
-st.title("🐾 Cat vs Dog Image Classifier")
-st.write("Upload an image of a **cat or dog**, and this app will tell you what it sees using a trained SVM model.")
+model = load_cnn_model()
 
-# File uploader
-uploaded_file = st.file_uploader("📤 Upload a JPEG/PNG image", type=["jpg", "jpeg", "png"])
+# --- Header ---
+st.markdown("<h1 style='text-align: center; color: #00ffcc;'>Cat vs Dog Classifier</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-size: 18px;'>Upload an image below to let our Neural Network decide — Cat or Dog?</p>", unsafe_allow_html=True)
+st.markdown("---")
 
-# On image upload
+# --- Upload + Predict in One Frame ---
+uploaded_file = st.file_uploader("🚀 Upload your image here", type=["jpg", "jpeg", "png"])
+
 if uploaded_file is not None:
-    # Read image bytes
-    file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
-    image = cv2.imdecode(file_bytes, 1)
+    image = Image.open(uploaded_file)
+    if image.mode != "RGB":
+        image = image.convert("RGB")
 
-    # Display original image
-    st.image(image, caption="📷 Uploaded Image", channels="BGR", use_column_width=True)
+    # Preprocess image
+    img_array = np.array(image.resize((IMG_SIZE, IMG_SIZE))) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
 
-    # Preprocess
-    resized = cv2.resize(image, (IMG_SIZE, IMG_SIZE))
-    gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
-    flat = gray.flatten().reshape(1, -1)
+    # Predict
+    prediction = model.predict(img_array)[0]
+    class_index = np.argmax(prediction)
+    confidence = np.max(prediction) * 100
+    predicted_class = CLASS_NAMES[class_index]
 
-    # Predict with timer
-    start_time = time.time()
-    pred = model.predict(flat)[0]
-    prob = model.decision_function(flat)[0]  # Confidence distance from hyperplane
-    elapsed = time.time() - start_time
+    # --- Layout in Two Columns ---
+    col1, col2 = st.columns(2)
 
-    # Normalize confidence to a 0-100 scale using sigmoid approximation
-    confidence = 1 / (1 + np.exp(-abs(prob))) * 100
+    with col1:
+        st.markdown("### 🖼️ Uploaded Image")
+        st.image(image, width=300, caption="Preview")
 
-    # Output
+
+    with col2:
+        st.markdown("## 🔍 Prediction Result")
+        st.markdown(f"### 🧠 Model Prediction: `{predicted_class}`")
+        st.markdown(f"### ⚡ Confidence: `{confidence:.2f}%`")
+
     st.markdown("---")
-    st.subheader("🔍 Prediction Result")
-    st.markdown(f"**Prediction:** {CLASS_NAMES[pred]}")
-    st.markdown(f"**Confidence Score:** `{confidence:.2f}%`")
-    st.markdown(f"**Prediction Time:** `{elapsed:.4f} seconds`")
+    st.markdown("<p style='text-align: center; color: gray;'>High-Tech Classifier Interface | Yuvraj Singh & Nexa AI Systems</p>", unsafe_allow_html=True)
