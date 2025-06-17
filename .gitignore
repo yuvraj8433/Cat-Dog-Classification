@@ -1,2 +1,3 @@
       .venv
       training_set
+      cat_dog_cnn_model.keras

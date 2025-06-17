@@ -4,16 +4,18 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 from PIL import Image
 import os
+import gdown  # <--- Add this import
 
 # --- Page Config ---
 st.set_page_config(page_title="Cat vs Dog Classifier", layout="wide", page_icon="🤖")
 
 # --- Constants ---
 MODEL_PATH = "cat_dog_cnn_model.keras"
+MODEL_URL = "https://drive.google.com/file/d/1Q4O-qoHdVTJD4wvqJYXct5Sj1x4_iplQ"  # Replace with your real ID
 IMG_SIZE = 128
 CLASS_NAMES = ['🐱 Cat', '🐶 Dog']
 
-# --- Custom CSS for high-tech style ---
+# --- Custom CSS ---
 st.markdown("""
     <style>
         .reportview-container {
@@ -39,11 +41,10 @@ st.markdown("""
 @st.cache_resource
 def load_cnn_model():
     if not os.path.isfile(MODEL_PATH):
-        st.error(f"❌ Model file not found at: {MODEL_PATH}")
-        st.stop()
+        st.warning("📦 Downloading model from Google Drive...")
+        gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
     return load_model(MODEL_PATH)
 
-# Load the model safely
 model = load_cnn_model()
 
 # --- Header ---
@@ -75,7 +76,6 @@ if uploaded_file is not None:
     with col1:
         st.markdown("### 🖼️ Uploaded Image")
         st.image(image, width=300, caption="Preview")
-
 
     with col2:
         st.markdown("## 🔍 Prediction Result")
