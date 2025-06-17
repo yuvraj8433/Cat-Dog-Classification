@@ -38,11 +38,13 @@ st.markdown("""
 # --- Load Model ---
 @st.cache_resource
 def load_cnn_model():
-    if not os.path.exists(MODEL_PATH):
-        st.error(f"⚠️ Model file '{MODEL_PATH}' not found.")
+    if not os.path.isfile(MODEL_PATH):
+        st.error(f"❌ Model file '{MODEL_PATH}' not found in the working directory.")
         st.stop()
-    return load_model(MODEL_PATH)
+    model = load_model(MODEL_PATH)
+    return model
 
+# Load the model safely
 model = load_cnn_model()
 
 # --- Header ---
