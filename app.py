@@ -9,7 +9,7 @@ import os
 st.set_page_config(page_title="Cat vs Dog Classifier", layout="wide", page_icon="🤖")
 
 # --- Constants ---
-MODEL_PATH = "cat_dog_cnn_model.keras"
+MODEL_PATH = "G:\Cat_vs_Dog\cat_dog_cnn_model.keras"
 IMG_SIZE = 128
 CLASS_NAMES = ['🐱 Cat', '🐶 Dog']
 
