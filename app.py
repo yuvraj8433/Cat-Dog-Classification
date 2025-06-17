@@ -39,10 +39,9 @@ st.markdown("""
 @st.cache_resource
 def load_cnn_model():
     if not os.path.isfile(MODEL_PATH):
-        st.error(f"❌ Model file '{MODEL_PATH}' not found in the working directory.")
+        st.error(f"❌ Model file not found at: {MODEL_PATH}")
         st.stop()
-    model = load_model(MODEL_PATH)
-    return model
+    return load_model(MODEL_PATH)
 
 # Load the model safely
 model = load_cnn_model()
