@@ -1,49 +1,27 @@
 import streamlit as st
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import load_model
 from PIL import Image
 import os
-import gdown  # <--- Add this import
+import gdown
+from tensorflow.keras.models import load_model
 
 # --- Page Config ---
 st.set_page_config(page_title="Cat vs Dog Classifier", layout="wide", page_icon="🤖")
 
-# --- Constants ---
+
 MODEL_PATH = "cat_dog_cnn_model.keras"
-MODEL_URL = "https://drive.google.com/file/d/1Q4O-qoHdVTJD4wvqJYXct5Sj1x4_iplQ"  # Replace with your real ID
-IMG_SIZE = 128
-CLASS_NAMES = ['🐱 Cat', '🐶 Dog']
+MODEL_URL = "https://drive.google.com/file/d/1d1_t3NNWxuCJxnbgUblh5aUqY9jCkSOy"  # Replace with actual ID
 
-# --- Custom CSS ---
-st.markdown("""
-    <style>
-        .reportview-container {
-            background-color: #0f0f0f;
-            color: #f0f0f0;
-        }
-        .block-container {
-            padding: 2rem 2rem 2rem 2rem;
-        }
-        .stButton>button {
-            background-color: #00ffcc;
-            color: black;
-            font-weight: bold;
-            border-radius: 10px;
-        }
-        .stFileUploader {
-            border: 2px dashed #00ffcc;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- Load Model ---
 @st.cache_resource
 def load_cnn_model():
-    if not os.path.isfile(MODEL_PATH):
-        st.warning("📦 Downloading model from Google Drive...")
-        gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
-    return load_model(MODEL_PATH)
+    try:
+        if not os.path.exists(MODEL_PATH):
+            st.warning("📥 Downloading model from Google Drive...")
+            gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
+        return load_model(MODEL_PATH)
+    except Exception as e:
+        st.error(f"❌ Failed to load model: {e}")
+        st.stop()
 
 model = load_cnn_model()
 
