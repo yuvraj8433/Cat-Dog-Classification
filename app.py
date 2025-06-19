@@ -9,8 +9,8 @@ from tensorflow.keras.models import load_model
 st.set_page_config(page_title="Cat vs Dog Classifier", layout="wide", page_icon="🤖")
 
 
-MODEL_PATH = "cat_dog_cnn_model.keras"
 MODEL_URL = "https://drive.google.com/file/d/1d1_t3NNWxuCJxnbgUblh5aUqY9jCkSOy"  # Replace with actual ID
+MODEL_PATH = "cat_dog_cnn_model.keras"
 
 @st.cache_resource
 def load_cnn_model():
