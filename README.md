@@ -10,11 +10,3 @@ A futuristic AI web app that classifies images as **Cat 🐱** or **Dog 🐶** u
 - Image upload + instant prediction
 - High accuracy + clean UI
 
----
-
-## 📦 Installation
-
-```bash
-git clone https://github.com/YOUR_USERNAME/CatDogClassifier.git
-cd CatDogClassifier
-pip install -r requirements.txt
